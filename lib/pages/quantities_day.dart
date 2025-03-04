@@ -40,6 +40,7 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
     }
   }
 
+  // CHANGE: Modified to exclude completed products
   Future<void> _fetchProductQuantities() async {
     if (_selectedDate == null) return;
     setState(() {
@@ -48,15 +49,22 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
     });
 
     final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-    // Add excludeCompleted parameter
     final orders = await DatabaseHelper.instance.fetchOrdersByDate(formattedDate, excludeCompleted: true);
 
     final Map<String, double> quantities = {};
 
     for (final order in orders) {
+      // CHANGE: Get completed products for this order
+      final orderId = order['displayOrderId'] as String;
+      final completedProducts = await DatabaseHelper.instance.getCompletedProducts(orderId);
+
       final products = json.decode(order['products']) as List;
       for (final product in products) {
         final name = product['name'] as String;
+
+        // CHANGE: Skip this product if it's marked as completed
+        if (completedProducts.contains(name)) continue;
+
         final quantity = product['quantity'] as double;
         quantities[name] = (quantities[name] ?? 0.0) + quantity;
       }

@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 6,
+      version: 8, // Incremented from 7 to 8 for completed_products table
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -54,6 +54,34 @@ class DatabaseHelper {
         print('Error checking/adding address column: $e');
       }
     }
+    if (oldVersion < 7) {
+      // Add notes column
+      try {
+        final tableInfo = await db.rawQuery("PRAGMA table_info(orders)");
+        final hasNotes = tableInfo.any((column) => column['name'] == 'notes');
+        if (!hasNotes) {
+          batch.execute('ALTER TABLE orders ADD COLUMN notes TEXT');
+        }
+      } catch (e) {
+        print('Error adding notes column: $e');
+      }
+    }
+    // CHANGE: Add completed_products table if upgrading to version 8
+    if (oldVersion < 8) {
+      try {
+        batch.execute('''
+          CREATE TABLE completed_products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id TEXT NOT NULL,
+            product_name TEXT NOT NULL,
+            completed INTEGER DEFAULT 0,
+            UNIQUE(order_id, product_name)
+          )
+        ''');
+      } catch (e) {
+        print('Error creating completed_products table: $e');
+      }
+    }
 
     try {
       await batch.commit();
@@ -73,10 +101,24 @@ class DatabaseHelper {
         products TEXT NOT NULL,
         isCompleted INTEGER DEFAULT 0,
         orderId INTEGER,
-        displayOrderId TEXT UNIQUE
+        displayOrderId TEXT UNIQUE,
+        notes TEXT
       )
     ''';
     await db.execute(orderTable);
+
+    // CHANGE: Added creation of completed_products table
+    const completedProductsTable = '''
+      CREATE TABLE completed_products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id TEXT NOT NULL,
+        product_name TEXT NOT NULL,
+        completed INTEGER DEFAULT 0,
+        UNIQUE(order_id, product_name)
+      )
+    ''';
+    await db.execute(completedProductsTable);
+
     await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_orderId ON orders (orderId)');
   }
 
@@ -138,5 +180,50 @@ class DatabaseHelper {
       where: 'displayOrderId = ?',
       whereArgs: [displayOrderId],
     );
+
+    // CHANGE: Also delete related product completion records
+    await db.delete(
+      'completed_products',
+      where: 'order_id = ?',
+      whereArgs: [displayOrderId],
+    );
+  }
+
+  // Method for database reset (if needed)
+  Future<void> resetDatabase() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'orders.db');
+
+    // Delete the database
+    await deleteDatabase(path);
+
+    // Reinitialize the database
+    _database = null;
+    await database;
+  }
+
+  // CHANGE: Added methods for tracking completed products
+
+  // Set a product as completed or not completed
+  Future<void> setProductCompletion(String orderId, String productName, bool completed) async {
+    final db = await instance.database;
+
+    // Use REPLACE to handle both insert and update scenarios
+    await db.rawInsert(
+        'INSERT OR REPLACE INTO completed_products(order_id, product_name, completed) VALUES(?, ?, ?)',
+        [orderId, productName, completed ? 1 : 0]
+    );
+  }
+
+  // Get a list of completed product names for an order
+  Future<List<String>> getCompletedProducts(String orderId) async {
+    final db = await instance.database;
+    final results = await db.query(
+        'completed_products',
+        where: 'order_id = ? AND completed = 1',
+        whereArgs: [orderId]
+    );
+
+    return results.map((row) => row['product_name'] as String).toList();
   }
 }

@@ -14,6 +14,8 @@ class OrderDetailsPage extends StatefulWidget {
   final DateTime deliveryDate;
   final List<Map<String, dynamic>> products;
   final bool isCompleted;
+  final String? notes;
+
 
   const OrderDetailsPage({
     super.key,
@@ -24,6 +26,7 @@ class OrderDetailsPage extends StatefulWidget {
     required this.deliveryDate,
     required this.products,
     this.isCompleted = false,
+    this.notes
   });
 
   @override
@@ -32,11 +35,40 @@ class OrderDetailsPage extends StatefulWidget {
 
 class OrderDetailsPageState extends State<OrderDetailsPage> {
   late bool _isCompleted;
+  // CHANGE: Added map to track product completion status
+  Map<String, bool> _completedProducts = {};
 
   @override
   void initState() {
     super.initState();
     _isCompleted = widget.isCompleted;
+    // CHANGE: Added loading of completed products
+    _loadCompletedProducts();
+  }
+
+  // CHANGE: Added method to load completed products from database
+  Future<void> _loadCompletedProducts() async {
+    final completedList = await DatabaseHelper.instance.getCompletedProducts(widget.displayOrderId);
+
+    setState(() {
+      for (var product in widget.products) {
+        final productName = product['name'] as String;
+        _completedProducts[productName] = completedList.contains(productName);
+      }
+    });
+  }
+
+  // CHANGE: Added method to toggle product completion status
+  Future<void> _toggleProductCompletion(String productName, bool completed) async {
+    await DatabaseHelper.instance.setProductCompletion(
+        widget.displayOrderId,
+        productName,
+        completed
+    );
+
+    setState(() {
+      _completedProducts[productName] = completed;
+    });
   }
 
   String _formatQuantity(double quantity) {
@@ -61,6 +93,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
     return formattedValue;
   }
 
+
+
   Future<void> _editOrder() async {
     final result = await Navigator.push(
       context,
@@ -74,6 +108,7 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
           existingDeliveryDate: widget.deliveryDate,
           existingProducts: widget.products,
           isEditing: true,
+          notes: widget.notes,
         ),
       ),
     );
@@ -225,27 +260,54 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
             _buildDetailRow('Διεύθυνση', widget.address),
             const SizedBox(height: 8),
             _buildDetailRow('Ημερομηνία Παράδοσης', formattedDate),
+            if (widget.notes != null && widget.notes!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildDetailRow('Σημειώσεις', widget.notes!),
+            ],
             const SizedBox(height: 16),
             const Text(
               'Προϊόντα:',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            ...widget.products.map((product) => Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                title: Text(
-                  product['name'] ?? 'Unknown product',
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+            // CHANGE: Modified product list to include checkboxes
+            ...widget.products.map((product) {
+              final productName = product['name'] ?? 'Unknown product';
+              final isCompleted = _completedProducts[productName] ?? false;
+
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                child: ListTile(
+                  title: Text(
+                    productName,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Ποσ.: ${_formatQuantity(double.tryParse(product['quantity'].toString()) ?? 0.0)}',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(width: 10),
+                      Checkbox(
+                        value: isCompleted,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            _toggleProductCompletion(productName, value);
+                          }
+                        },
+                        activeColor: const Color(0xFFF2CD00),
+                      ),
+                    ],
+                  ),
                 ),
-                // In the product display section, modify how you display the quantity
-                trailing: Text(
-                  'Ποσ.: ${_formatQuantity(double.tryParse(product['quantity'].toString()) ?? 0.0)}',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-              ),
-            )),
+              );
+            }),
             const SizedBox(height: 20),
             Center(
               child: Wrap(

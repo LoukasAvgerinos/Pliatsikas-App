@@ -25,7 +25,7 @@ class Product {
   }
 }
 
-//list of products that the company sells
+//list of products that the store sells
 final List<Product> productsList = [
   Product(id: '1', name: 'Κοτόπουλο μικρό', price: 6.50, unit: 'Τεμάχιο'),
   Product(id: '2', name: 'Κοτόπουλο μεσαίο', price: 6.50, unit: 'Τεμάχιο'),

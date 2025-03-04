@@ -5,6 +5,7 @@ import '/models/products.dart';
 import '/database/database_creation.dart';
 import 'package:intl/intl.dart';
 import '/pages/home_page.dart';
+import '/widgets/notes_popup.dart';
 
 class NewOrderPage extends StatefulWidget {
   final List<Product> initialProducts;
@@ -15,6 +16,7 @@ class NewOrderPage extends StatefulWidget {
   final DateTime? existingDeliveryDate;
   final List<Map<String, dynamic>>? existingProducts;
   final bool isEditing;  // To determine if we're editing or creating
+  final String? notes;
 
   const NewOrderPage({
     super.key,
@@ -26,10 +28,11 @@ class NewOrderPage extends StatefulWidget {
     this.existingDeliveryDate,
     this.existingProducts,
     this.isEditing = false,
+    this.notes,
   });
 
   @override
-  NewOrderPageState createState() => NewOrderPageState();
+  State<NewOrderPage> createState() => NewOrderPageState();
 }
 
 class NewOrderPageState extends State<NewOrderPage> {
@@ -40,6 +43,8 @@ class NewOrderPageState extends State<NewOrderPage> {
   DateTime? deliveryDate;
   late List<Product> _productsList;
   String? displayOrderId;
+
+  String _orderNotes = '';
 
   @override
   void initState() {
@@ -54,6 +59,7 @@ class NewOrderPageState extends State<NewOrderPage> {
       phoneController.text = widget.phone ?? '';
       addressController.text = widget.address ?? '';
       displayOrderId = widget.existingOrderId;
+      _orderNotes = widget.notes ?? '';
     } else {
       _initializeOrderId();
     }
@@ -148,6 +154,7 @@ class NewOrderPageState extends State<NewOrderPage> {
     );
   }
 
+  // CHANGE: Modified validation to remove phone number requirements
   Future<void> submitOrder() async {
     if (!mounted) return;
 
@@ -156,15 +163,23 @@ class NewOrderPageState extends State<NewOrderPage> {
       _showSnackBar('Παρακαλώ εισάγετε όνομα πελάτη!', const Color(0xFFE61F1F));
       return;
     }
-    String phone = phoneController.text.replaceAll(' ', '');
-    if (phone.isEmpty) {
-      _showSnackBar('Παρακαλώ εισάγετε τηλέφωνο!', const Color(0xFFE61F1F));
-      return;
-    }
-    if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
-      _showSnackBar('Το τηλέφωνο πρέπει να είναι 10 ψηφία!', const Color(0xFFE61F1F));
-      return;
-    }
+
+    // CHANGE: Phone validation removed
+    // Just keep the spacing formatter but without any validation
+    // String phone = phoneController.text.replaceAll(' ', '');
+
+    // CHANGE: Removed phone validation checks
+    // No validation if empty:
+    // if (phone.isEmpty) {
+    //   _showSnackBar('Παρακαλώ εισάγετε τηλέφωνο!', const Color(0xFFE61F1F));
+    //   return;
+    // }
+    // No validation for 10 digits:
+    // if (!RegExp(r'^[0-9]{10}$').hasMatch(phone)) {
+    //   _showSnackBar('Το τηλέφωνο πρέπει να είναι 10 ψηφία!', const Color(0xFFE61F1F));
+    //   return;
+    // }
+
     if (deliveryDate == null) {
       _showSnackBar('Επιλέξτε ημερομηνία!', const Color(0xFFE61F1F));
       return;
@@ -184,6 +199,7 @@ class NewOrderPageState extends State<NewOrderPage> {
       'deliveryDate': deliveryDate.toString(),
       'products': _encodeProducts(),
       'displayOrderId': displayOrderId,
+      'notes': _orderNotes,
     };
 
     try {
@@ -323,6 +339,17 @@ class NewOrderPageState extends State<NewOrderPage> {
               onTap: () => _selectDate(context),
             ),
             const SizedBox(height: 16.0),
+            ListTile(
+              title: const Text('Σημειώσεις:'),
+              subtitle: Text(
+                _orderNotes.isEmpty ? 'Δεν υπάρχουν σημειώσεις' : _orderNotes,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              trailing: const Icon(Icons.edit_note),
+              onTap: _showNotesDialog,
+            ),
+            const SizedBox(height: 16.0),
             Text(
               'Προϊόντα',
               style: Theme.of(context).textTheme.displayMedium,
@@ -350,6 +377,19 @@ class NewOrderPageState extends State<NewOrderPage> {
     if (picked != null && mounted) {
       setState(() {
         deliveryDate = picked;
+      });
+    }
+  }
+
+  Future<void> _showNotesDialog() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => NotesPopup(initialNotes: _orderNotes),
+    );
+
+    if (result != null) {
+      setState(() {
+        _orderNotes = result;
       });
     }
   }

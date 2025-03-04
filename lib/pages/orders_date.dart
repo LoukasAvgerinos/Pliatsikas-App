@@ -118,12 +118,13 @@ class OrdersByDatePageState extends State<OrdersByDatePage> {
                           displayOrderId: order['displayOrderId'] ?? '#00000',
                           customerName: order['customerName'],
                           phone: order['phone'],
-                          address: order['address'] ?? '',  // Added address
+                          address: order['address'] ?? '',
                           deliveryDate: DateTime.parse(order['deliveryDate']),
                           products: List<Map<String, dynamic>>.from(
                             json.decode(order['products']),
                           ),
                           isCompleted: order['isCompleted'] == 1,
+                          notes: order['notes'],
                         ),
                       ),
                     );
@@ -144,6 +145,20 @@ class OrdersByDatePageState extends State<OrdersByDatePage> {
                         children: [
                           Text('Όνομα: ${order['customerName']}'),
                           Text('Τηλέφωνο: ${order['phone']}'),
+                          if (order['notes'] != null && order['notes'].toString().isNotEmpty)
+                            Row(
+                              children: [
+                                const Icon(Icons.note, size: 16),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    'Σημειώσεις: ${order['notes']}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                         ],
                       ),
                       trailing: order['isCompleted'] == 1
