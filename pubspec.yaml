@@ -1,202 +1,55 @@
 name: pliatsikas_app
-<<<<<<< HEAD
-description: "Pliatsikas Managing Orders"
-
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.1
-
-environment:
-  sdk: ^3.6.1
-
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
-dependencies:
-  flutter:
-    sdk: flutter
-  cupertino_icons: ^1.0.8
-
-  google_fonts: ^6.2.1
-  sqflite: ^2.4.1
-  path: ^1.9.0
-  lottie: 3.3.1
-  shared_preferences: ^2.5.1
-  uuid: ^4.5.1
-  flutter_launcher_icons: ^0.14.3
-
-  flutter_localizations:
-    sdk: flutter
-  intl: ^0.19.0
-
-
-=======
-description: A comprehensive Flutter application for managing orders at Pliatsikas Chicken business, featuring order creation, customer management, and delivery scheduling.
+description: >
+  A comprehensive Flutter application for managing orders at Pliatsikas Chicken business,
+  featuring order creation, customer management, and delivery scheduling.
 version: 1.0.2+2
 homepage: https://github.com/LoukasAvgerinos/Pliatsikas-App
 repository: https://github.com/LoukasAvgerinos/Pliatsikas-App
 issue_tracker: https://github.com/LoukasAvgerinos/Pliatsikas-App/issues
 
-# Prevent accidental publishing to pub.dev
 publish_to: 'none'
 
-# Environment constraints
 environment:
   sdk: '>=3.6.1 <4.0.0'
   flutter: '>=3.24.0'
 
-# Dependencies
 dependencies:
   flutter:
     sdk: flutter
-
-  # Core Flutter dependencies
   cupertino_icons: ^1.0.8
-
-  # UI and Theming
   google_fonts: ^6.2.1
-
-  # Database and Storage
   sqflite: ^2.4.1
   path: ^1.9.0
   shared_preferences: ^2.5.1
-
-  # Utilities
   uuid: ^4.5.1
   lottie: ^3.3.1
-
-  # Internationalization
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
 
-  # Development and Build Tools
-  flutter_launcher_icons: ^0.14.3
-
-# Development dependencies
->>>>>>> badc306 (Add search functionality to orders page and update version to 1.0.2)
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-<<<<<<< HEAD
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
   flutter_lints: ^5.0.0
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
-
-# The following section is specific to Flutter packages.
-flutter:
-  uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/images/logo.jpeg
-    - assets/json/
-
-=======
-  # Linting and Code Quality
-  flutter_lints: ^5.0.0
-
-  # Testing
   integration_test:
     sdk: flutter
-
-  # Build and Deployment
-  #flutter_launcher_icons: ^0.14.3
-
-  # Additional development tools
+  flutter_launcher_icons: ^0.14.3
   build_runner: ^2.4.9
   json_serializable: ^6.8.0
 
-# Flutter-specific configuration
 flutter:
-  # Enable Material Design
   uses-material-design: true
-
-  # Generate localized strings from .arb files
   generate: true
-
-  # Asset configuration
   assets:
-    # Images
     - assets/images/logo.jpeg
     - assets/images/pliatsikas_image_app.png
-    # Animations and data
     - assets/json/
 
-  # Font configuration - using default system fonts and google_fonts package
-  # fonts:
-  #   - family: Roboto
-  #     fonts:
-  #       - asset: fonts/Roboto-Regular.ttf
-  #       - asset: fonts/Roboto-Bold.ttf
-  #         weight: 700
-
-# Flutter Icons configuration
->>>>>>> badc306 (Add search functionality to orders page and update version to 1.0.2)
-flutter_icons:
+flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   image_path: "assets/images/pliatsikas_image_app.png"
   min_sdk_android: 21
   remove_alpha_ios: true
-<<<<<<< HEAD
-=======
-  # Adaptive icon background color (Android 8.0+)
   adaptive_icon_background: "#FFFFFF"
-  # Adaptive icon foreground image (Android 8.0+)
   adaptive_icon_foreground: "assets/images/pliatsikas_image_app.png"
-
-# Additional metadata
-flutter_gen:
-  output: lib/gen/
-  line_length: 80
-
-# Scripts (for use with flutter pub run)
-scripts:
-  analyze: flutter analyze
-  test: flutter test
-  build_apk: flutter build apk --release
-  build_ios: flutter build ios --release
-  clean: flutter clean && flutter pub get
-
-# Documentation
-documentation: https://github.com/your-username/pliatsikas-app/wiki
-
-# Funding
-funding:
-  - https://www.buymeacoffee.com/your-username
-  - https://ko-fi.com/your-username
-
-# Topics for package discovery
-topics:
-  - flutter
-  - mobile-app
-  - order-management
-  - business-app
-  - chicken-business
->>>>>>> badc306 (Add search functionality to orders page and update version to 1.0.2)
-
