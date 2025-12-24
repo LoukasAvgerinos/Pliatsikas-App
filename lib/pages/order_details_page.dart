@@ -16,18 +16,16 @@ class OrderDetailsPage extends StatefulWidget {
   final bool isCompleted;
   final String? notes;
 
-
-  const OrderDetailsPage({
-    super.key,
-    required this.displayOrderId,
-    required this.customerName,
-    required this.phone,
-    required this.address,
-    required this.deliveryDate,
-    required this.products,
-    this.isCompleted = false,
-    this.notes
-  });
+  const OrderDetailsPage(
+      {super.key,
+      required this.displayOrderId,
+      required this.customerName,
+      required this.phone,
+      required this.address,
+      required this.deliveryDate,
+      required this.products,
+      this.isCompleted = false,
+      this.notes});
 
   @override
   State<OrderDetailsPage> createState() => OrderDetailsPageState();
@@ -36,7 +34,7 @@ class OrderDetailsPage extends StatefulWidget {
 class OrderDetailsPageState extends State<OrderDetailsPage> {
   late bool _isCompleted;
   // CHANGE: Added map to track product completion status
-  Map<String, bool> _completedProducts = {};
+  final Map<String, bool> _completedProducts = {};
 
   @override
   void initState() {
@@ -48,7 +46,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
 
   // CHANGE: Added method to load completed products from database
   Future<void> _loadCompletedProducts() async {
-    final completedList = await DatabaseHelper.instance.getCompletedProducts(widget.displayOrderId);
+    final completedList = await DatabaseHelper.instance
+        .getCompletedProducts(widget.displayOrderId);
 
     setState(() {
       for (var product in widget.products) {
@@ -59,12 +58,10 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   // CHANGE: Added method to toggle product completion status
-  Future<void> _toggleProductCompletion(String productName, bool completed) async {
-    await DatabaseHelper.instance.setProductCompletion(
-        widget.displayOrderId,
-        productName,
-        completed
-    );
+  Future<void> _toggleProductCompletion(
+      String productName, bool completed) async {
+    await DatabaseHelper.instance
+        .setProductCompletion(widget.displayOrderId, productName, completed);
 
     setState(() {
       _completedProducts[productName] = completed;
@@ -93,8 +90,6 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
     return formattedValue;
   }
 
-
-
   Future<void> _editOrder() async {
     final result = await Navigator.push(
       context,
@@ -114,7 +109,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
     );
 
     if (result == true && mounted) {
-      Navigator.pop(context, true); // Return to previous screen with update flag
+      Navigator.pop(
+          context, true); // Return to previous screen with update flag
     }
   }
 
@@ -124,7 +120,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Επιβεβαίωση Ακύρωσης'),
-          content: const Text('Είστε σίγουροι ότι θέλετε να ακυρώσετε την παραγγελία;'),
+          content: const Text(
+              'Είστε σίγουροι ότι θέλετε να ακυρώσετε την παραγγελία;'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -184,10 +181,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   Future<void> _markOrderAsFinished() async {
-    await DatabaseHelper.instance.updateOrderCompletionStatus(
-        widget.displayOrderId,
-        !_isCompleted
-    );
+    await DatabaseHelper.instance
+        .updateOrderCompletionStatus(widget.displayOrderId, !_isCompleted);
 
     if (!mounted) return;
 
@@ -198,7 +193,9 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _isCompleted ? 'Η παραγγελία ολοκληρώθηκε!' : 'Η παραγγελία είναι σε αναμονή!',
+          _isCompleted
+              ? 'Η παραγγελία ολοκληρώθηκε!'
+              : 'Η παραγγελία είναι σε αναμονή!',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
         ),
@@ -283,7 +280,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
                     productName,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
-                      decoration: isCompleted ? TextDecoration.lineThrough : null,
+                      decoration:
+                          isCompleted ? TextDecoration.lineThrough : null,
                     ),
                   ),
                   trailing: Row(
@@ -291,7 +289,8 @@ class OrderDetailsPageState extends State<OrderDetailsPage> {
                     children: [
                       Text(
                         'Ποσ.: ${_formatQuantity(double.tryParse(product['quantity'].toString()) ?? 0.0)}',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(width: 10),
                       Checkbox(

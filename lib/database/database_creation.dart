@@ -29,7 +29,8 @@ class DatabaseHelper {
     var batch = db.batch();
 
     if (oldVersion < 2) {
-      batch.execute('ALTER TABLE orders ADD COLUMN isCompleted INTEGER DEFAULT 0');
+      batch.execute(
+          'ALTER TABLE orders ADD COLUMN isCompleted INTEGER DEFAULT 0');
     }
     if (oldVersion < 3) {
       try {
@@ -38,7 +39,8 @@ class DatabaseHelper {
         // Column might not exist, continue
       }
       batch.execute('ALTER TABLE orders ADD COLUMN orderId INTEGER');
-      batch.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_orderId ON orders (orderId)');
+      batch.execute(
+          'CREATE UNIQUE INDEX IF NOT EXISTS idx_orderId ON orders (orderId)');
     }
     if (oldVersion < 4) {
       batch.execute('ALTER TABLE orders ADD COLUMN displayOrderId TEXT');
@@ -46,7 +48,8 @@ class DatabaseHelper {
     if (oldVersion < 5) {
       try {
         final tableInfo = await db.rawQuery("PRAGMA table_info(orders)");
-        final hasAddress = tableInfo.any((column) => column['name'] == 'address');
+        final hasAddress =
+            tableInfo.any((column) => column['name'] == 'address');
         if (!hasAddress) {
           batch.execute('ALTER TABLE orders ADD COLUMN address TEXT');
         }
@@ -119,12 +122,14 @@ class DatabaseHelper {
     ''';
     await db.execute(completedProductsTable);
 
-    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_orderId ON orders (orderId)');
+    await db.execute(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_orderId ON orders (orderId)');
   }
 
   Future<String> getNextDisplayOrderId() async {
     final db = await instance.database;
-    final result = await db.rawQuery('SELECT MAX(CAST(SUBSTR(displayOrderId, 2) AS INTEGER)) as maxId FROM orders');
+    final result = await db.rawQuery(
+        'SELECT MAX(CAST(SUBSTR(displayOrderId, 2) AS INTEGER)) as maxId FROM orders');
     int nextId = 1;
     if (result.first['maxId'] != null) {
       nextId = (result.first['maxId'] as int) + 1;
@@ -137,7 +142,8 @@ class DatabaseHelper {
     return await db.insert('orders', order);
   }
 
-  Future<List<Map<String, dynamic>>> fetchOrdersByDate(String date, {bool excludeCompleted = false}) async {
+  Future<List<Map<String, dynamic>>> fetchOrdersByDate(String date,
+      {bool excludeCompleted = false}) async {
     final db = await instance.database;
     String query = 'SELECT * FROM orders WHERE deliveryDate LIKE ?';
     if (excludeCompleted) {
@@ -147,7 +153,8 @@ class DatabaseHelper {
     return await db.rawQuery(query, ['$date%']);
   }
 
-  Future<void> updateOrderCompletionStatus(String displayOrderId, bool isCompleted) async {
+  Future<void> updateOrderCompletionStatus(
+      String displayOrderId, bool isCompleted) async {
     final db = await instance.database;
     await db.update(
       'orders',
@@ -158,7 +165,8 @@ class DatabaseHelper {
   }
 
   // Single updateOrder method with error handling
-  Future<int> updateOrder(Map<String, dynamic> order, String displayOrderId) async {
+  Future<int> updateOrder(
+      Map<String, dynamic> order, String displayOrderId) async {
     try {
       final db = await instance.database;
       return await db.update(
@@ -169,7 +177,7 @@ class DatabaseHelper {
       );
     } catch (e) {
       print('Error updating order: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -205,24 +213,21 @@ class DatabaseHelper {
   // CHANGE: Added methods for tracking completed products
 
   // Set a product as completed or not completed
-  Future<void> setProductCompletion(String orderId, String productName, bool completed) async {
+  Future<void> setProductCompletion(
+      String orderId, String productName, bool completed) async {
     final db = await instance.database;
 
     // Use REPLACE to handle both insert and update scenarios
     await db.rawInsert(
         'INSERT OR REPLACE INTO completed_products(order_id, product_name, completed) VALUES(?, ?, ?)',
-        [orderId, productName, completed ? 1 : 0]
-    );
+        [orderId, productName, completed ? 1 : 0]);
   }
 
   // Get a list of completed product names for an order
   Future<List<String>> getCompletedProducts(String orderId) async {
     final db = await instance.database;
-    final results = await db.query(
-        'completed_products',
-        where: 'order_id = ? AND completed = 1',
-        whereArgs: [orderId]
-    );
+    final results = await db.query('completed_products',
+        where: 'order_id = ? AND completed = 1', whereArgs: [orderId]);
 
     return results.map((row) => row['product_name'] as String).toList();
   }

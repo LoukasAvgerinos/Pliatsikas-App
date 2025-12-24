@@ -4,9 +4,9 @@ class NotesPopup extends StatefulWidget {
   final String initialNotes;
 
   const NotesPopup({
-    Key? key,
+    super.key,
     this.initialNotes = '',
-  }) : super(key: key);
+  });
 
   @override
   State<NotesPopup> createState() => _NotesPopupState();
