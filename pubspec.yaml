@@ -1,55 +1,112 @@
+# Pliatsikas Order Management App
 name: pliatsikas_app
 description: >
   A comprehensive Flutter application for managing orders at Pliatsikas Chicken business,
-  featuring order creation, customer management, and delivery scheduling.
-version: 1.0.2+2
-homepage: https://github.com/LoukasAvgerinos/Pliatsikas-App
-repository: https://github.com/LoukasAvgerinos/Pliatsikas-App
-issue_tracker: https://github.com/LoukasAvgerinos/Pliatsikas-App/issues
+  featuring order creation, customer management, delivery scheduling, and local database storage.
 
+# Version and Build Information
+version: 1.0.2+2 
+
+# Repository Information
+homepage: https://github.com/LoukasAvgerinos 
+repository: https://github.com/LoukasAvgerinos/Pliatsikas-App
+
+
+# Prevent accidental publishing to pub.dev
 publish_to: 'none'
 
+# Environment Constraints
 environment:
   sdk: '>=3.6.1 <4.0.0'
   flutter: '>=3.24.0'
 
+# =============================================================================
+# DEPENDENCIES
+# =============================================================================
+
 dependencies:
+  # Flutter SDK
   flutter:
     sdk: flutter
+
+  # Core Flutter Components
   cupertino_icons: ^1.0.8
+
+  # UI & Theming
   google_fonts: ^6.2.1
+
+  # Database & Storage
   sqflite: ^2.4.1
   path: ^1.9.0
   shared_preferences: ^2.5.1
+
+  # Utilities
   uuid: ^4.5.1
   lottie: ^3.3.1
+
+  # Internationalization (i18n)
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
 
+  # Development & Build Tools
+  flutter_launcher_icons: ^0.14.3
+
+# =============================================================================
+# DEVELOPMENT DEPENDENCIES
+# =============================================================================
+
 dev_dependencies:
+  # Testing Framework
   flutter_test:
     sdk: flutter
+
+  # Code Quality & Linting
   flutter_lints: ^5.0.0
+
+  # Integration Testing
   integration_test:
     sdk: flutter
-  flutter_launcher_icons: ^0.14.3
+
+  # Code Generation
   build_runner: ^2.4.9
   json_serializable: ^6.8.0
 
+# =============================================================================
+# FLUTTER CONFIGURATION
+# =============================================================================
+
 flutter:
+  # Enable Material Design
   uses-material-design: true
+
+  # Generate localized strings from ARB files
   generate: true
+
+  # Asset Configuration
   assets:
+    # Application Images
     - assets/images/logo.jpeg
     - assets/images/pliatsikas_image_app.png
+    # Animation Files
     - assets/json/
 
+# =============================================================================
+# LAUNCHER ICONS CONFIGURATION
+# =============================================================================
+
 flutter_launcher_icons:
+  # Android Configuration
   android: "launcher_icon"
   ios: true
+
+  # Source Image
   image_path: "assets/images/pliatsikas_image_app.png"
+
+  # Platform Specific Settings
   min_sdk_android: 21
   remove_alpha_ios: true
+
+  # Adaptive Icons (Android 8.0+)
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/images/pliatsikas_image_app.png"
