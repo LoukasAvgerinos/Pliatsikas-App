@@ -9,13 +9,13 @@ import '/widgets/notes_popup.dart';
 
 class NewOrderPage extends StatefulWidget {
   final List<Product> initialProducts;
-  final String? existingOrderId;  // For editing mode
+  final String? existingOrderId; // For editing mode
   final String? customerName;
   final String? phone;
   final String? address;
   final DateTime? existingDeliveryDate;
   final List<Map<String, dynamic>>? existingProducts;
-  final bool isEditing;  // To determine if we're editing or creating
+  final bool isEditing; // To determine if we're editing or creating
   final String? notes;
 
   const NewOrderPage({
@@ -65,24 +65,23 @@ class NewOrderPageState extends State<NewOrderPage> {
     }
 
     // Initialize products list
-    _productsList = productsList.map((product) => Product(
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      unit: product.unit,
-      quantity: 0.0,
-    )).toList();
+    _productsList = productsList
+        .map((product) => Product(
+              id: product.id,
+              name: product.name,
+              unit: product.unit,
+              quantity: 0.0,
+            ))
+        .toList();
 
     // If editing, set quantities from existing products
     if (widget.isEditing && widget.existingProducts != null) {
       for (var existingProduct in widget.existingProducts!) {
-        final productIndex = _productsList.indexWhere(
-                (p) => p.name == existingProduct['name']
-        );
+        final productIndex =
+            _productsList.indexWhere((p) => p.name == existingProduct['name']);
         if (productIndex != -1) {
-          _productsList[productIndex].quantity = _parseQuantity(
-              existingProduct['quantity']
-          );
+          _productsList[productIndex].quantity =
+              _parseQuantity(existingProduct['quantity']);
         }
       }
     }
@@ -90,8 +89,7 @@ class NewOrderPageState extends State<NewOrderPage> {
     // Initialize controllers for each product
     for (var product in _productsList) {
       _controllers[product.id] = TextEditingController(
-          text: product.quantity > 0 ? product.quantity.toString() : ''
-      );
+          text: product.quantity > 0 ? product.quantity.toString() : '');
     }
   }
 
@@ -132,9 +130,9 @@ class NewOrderPageState extends State<NewOrderPage> {
     return json.encode(_productsList
         .where((product) => product.quantity > 0)
         .map((product) => {
-      'name': product.name,
-      'quantity': product.quantity,
-    })
+              'name': product.name,
+              'quantity': product.quantity,
+            })
         .toList());
   }
 
@@ -145,8 +143,8 @@ class NewOrderPageState extends State<NewOrderPage> {
           message,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Colors.white,
-          ),
+                color: Colors.white,
+              ),
         ),
         backgroundColor: backgroundColor,
         duration: const Duration(seconds: 2),
@@ -186,9 +184,7 @@ class NewOrderPageState extends State<NewOrderPage> {
     }
     if (_productsList.every((product) => product.quantity == 0)) {
       _showSnackBar(
-          'Παρακαλώ επιλέξτε τουλάχιστον ένα προϊόν!',
-          const Color(0xFFE61F1F)
-      );
+          'Παρακαλώ επιλέξτε τουλάχιστον ένα προϊόν!', const Color(0xFFE61F1F));
       return;
     }
 
@@ -204,7 +200,8 @@ class NewOrderPageState extends State<NewOrderPage> {
 
     try {
       if (widget.isEditing) {
-        await DatabaseHelper.instance.updateOrder(order, widget.existingOrderId!);
+        await DatabaseHelper.instance
+            .updateOrder(order, widget.existingOrderId!);
       } else {
         await DatabaseHelper.instance.insertOrder(order);
       }
@@ -242,7 +239,7 @@ class NewOrderPageState extends State<NewOrderPage> {
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => const HomePage()),
-          (route) => false,
+      (route) => false,
     );
   }
 
@@ -250,7 +247,7 @@ class NewOrderPageState extends State<NewOrderPage> {
     return _productsList.map((product) {
       return ListTile(
         title: Text(product.name),
-        subtitle: Text('${product.price.toStringAsFixed(2)}€ / ${product.unit}'),
+        subtitle: Text(product.unit),
         trailing: SizedBox(
           width: 100,
           child: TextField(
@@ -287,7 +284,8 @@ class NewOrderPageState extends State<NewOrderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditing ? 'Επεξεργασία Παραγγελίας' : 'Νέα Παραγγελία'),
+        title: Text(
+            widget.isEditing ? 'Επεξεργασία Παραγγελίας' : 'Νέα Παραγγελία'),
         centerTitle: true,
         backgroundColor: const Color(0xFFF2CD00),
       ),
@@ -298,8 +296,8 @@ class NewOrderPageState extends State<NewOrderPage> {
             Text(
               'Order ID: ${displayOrderId ?? "Loading..."}',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 16.0),
             TextField(

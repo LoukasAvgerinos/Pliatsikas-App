@@ -49,14 +49,16 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
     });
 
     final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-    final orders = await DatabaseHelper.instance.fetchOrdersByDate(formattedDate, excludeCompleted: true);
+    final orders = await DatabaseHelper.instance
+        .fetchOrdersByDate(formattedDate, excludeCompleted: true);
 
     final Map<String, double> quantities = {};
 
     for (final order in orders) {
       // CHANGE: Get completed products for this order
       final orderId = order['displayOrderId'] as String;
-      final completedProducts = await DatabaseHelper.instance.getCompletedProducts(orderId);
+      final completedProducts =
+          await DatabaseHelper.instance.getCompletedProducts(orderId);
 
       final products = json.decode(order['products']) as List;
       for (final product in products) {
@@ -78,8 +80,8 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
 
   String _getUnit(String productName) {
     final product = productsList.firstWhere(
-          (p) => p.name == productName,
-      orElse: () => Product(id: '0', name: '', price: 0, unit: ''),
+      (p) => p.name == productName,
+      orElse: () => Product(id: '0', name: '', unit: ''),
     );
     return product.unit;
   }
@@ -101,7 +103,8 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
                 _selectedDate == null
                     ? 'Επιλέξτε Ημερομηνία'
                     : 'Ημερομηνία: ${DateFormat('dd/MM/yyyy').format(_selectedDate!)}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               trailing: const Icon(Icons.calendar_today),
               onTap: () => _selectDate(context),
@@ -111,41 +114,45 @@ class QuantitiesPerDayState extends State<QuantitiesPerDay> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _productQuantities.isEmpty
-                ? const Center(
-              child: Text(
-                'Δεν υπάρχουν άλλες ποσότητες για αυτή την ημέρα',
-                style: TextStyle(fontSize: 16),
-              ),
-            )
-                : ListView.builder(
-              itemCount: _productQuantities.length,
-              itemBuilder: (context, index) {
-                final productName = _productQuantities.keys.elementAt(index);
-                final quantity = _productQuantities[productName]!;
-                final unit = _getUnit(productName);
+                    ? const Center(
+                        child: Text(
+                          'Δεν υπάρχουν άλλες ποσότητες για αυτή την ημέρα',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: _productQuantities.length,
+                        itemBuilder: (context, index) {
+                          final productName =
+                              _productQuantities.keys.elementAt(index);
+                          final quantity = _productQuantities[productName]!;
+                          final unit = _getUnit(productName);
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      productName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w500,
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                productName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              trailing: Text(
+                                '${quantity.toStringAsFixed(2)} $unit',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                    trailing: Text(
-                      '${quantity.toStringAsFixed(2)} $unit',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
           ),
         ],
       ),
